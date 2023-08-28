@@ -1,13 +1,4 @@
-# CRUD-Django
+# This is a simple chat project that use sockets
 
-# Python version 3.8
+# This project use node with express.js, socket.io and React
 
-# Active virtual enviroment
-source env/Scripts/activate
-
-# Run project
-python manage.py runserver
-
-# Stop project
-Ctrl + c
-deactivate
