@@ -13,6 +13,13 @@ const io = new SocketServer(server, {
 
 io.on('connection', socket => {
     console.log("client connected");
+
+    socket.on('message', (data) => {
+        console.log(data);
+        socket.broadcast.emit('message', {from: socket.id, msg: data});
+    })
+
+
 })
 
 
