@@ -32,13 +32,14 @@ function App() {
           <ul>
             {
               messages.map((m, i)=> {
-                return (
+              return (
                   <li key={i}>{m.from}: {m.msg}</li>
                 )
               })
             }
           </ul>
         </div>
+        
     </div>
   )
 }
