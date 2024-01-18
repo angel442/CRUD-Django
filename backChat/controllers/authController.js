@@ -1,6 +1,6 @@
 import User from '../models/user.model.js';
 import bcrypt from 'bcryptjs';
-import { createAccesToken } from '../utils/jwt.js'
+import { createAccesToken } from '../utils/jwtSign.js'
 
 export const register = async (req, res) => {
     const { name, secondName, email, password, userName} = req.body;
@@ -17,11 +17,11 @@ export const register = async (req, res) => {
         });
     
         const userSaved = await newUser.save();
-        const token = await createAccesToken({id: userSaved._id})
+        const token = await createAccesToken({id: userSaved._id, username: userSaved.userName})
         res.cookie('token', token);
         res.json({
             id: userSaved._id, 
-            username: userSaved.username,
+            username: userSaved.userName,
             email: userSaved.email,
             createdAt: userSaved.createdAt,
             updatedAt: userSaved.updatedAt,
@@ -43,11 +43,11 @@ export const login = async (req, res) => {
         const isMatch = await bcrypt.compare(password, userFound.password);
         if (!isMatch) return res.status(400).json({ message: "Incorrect password" });
     
-        const token = await createAccesToken({id: userFound._id})
+        const token = await createAccesToken({id: userFound._id, username: userFound.userName})
         res.cookie('token', token);
         res.json({
             id: userFound._id, 
-            username: userFound.username,
+            username: userFound.userName,
             email: userFound.email,
             createdAt: userFound.createdAt,
             updatedAt: userFound.updatedAt,
