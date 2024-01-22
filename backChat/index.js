@@ -1,5 +1,6 @@
 import authRoutes from './routes/authRoutes.js';
 import { connectDB } from './db.js';
+import Message from './models/message.model.js';
 import 'dotenv/config';
 
 import express from "express";
@@ -53,14 +54,25 @@ wss.on('connection', (connection, req) => {
     }
 
     // handler message
-    connection.on('message', (message) => {
+    connection.on('message', async (message) => {
         const messageData = JSON.parse(message.toString());
         const {recipient, text} = messageData;
         if (recipient && text) {
-            
+
+            const messageDoc = await Message.create({
+                sender: connection.userId,
+                recipient: recipient,
+                text: text
+            });
+
             [...wss.clients]
                 .filter(c => c.userId === recipient)
-                .forEach(c => c.send(JSON.stringify({text, sender:connection.userId})));
+                .forEach(c => c.send(JSON.stringify({
+                    text, 
+                    sender: connection.userId,
+                    recipient,
+                    id: messageDoc._id
+                })));
         }
     });
 

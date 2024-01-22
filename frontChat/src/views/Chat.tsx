@@ -33,8 +33,8 @@ export default function Chat() {
         const messageData = JSON.parse(ev.data);
         if ('online' in messageData) {
             showOnlinePeople(messageData.online);
-        } else {
-            setMessages(prev => ([...prev, {text:messageData.text, isOur: false}]));
+        } else if ('text' in messageData) {
+            setMessages(prev => ([...prev, {...messageData}]));
         }
     }
 
@@ -45,11 +45,31 @@ export default function Chat() {
                 text: newMessageText,
         }));
         setNewMessageText('');
-        setMessages(prev => ([...prev, {text: newMessageText, isOur: true}]));
+        setMessages(prev => ([...prev, {
+            text: newMessageText, 
+            sender: id,
+            recipient: selectedUserId,
+        }]));
+    }
+
+
+    function getMessagesWithoutDupes(): {text: String, isOur: boolean} {
+        const uniqueSet = new Set();
+
+        return messages.filter((m) => {
+            const key = `${m.text}_${m.isOur}`;
+            if (!uniqueSet.has(key)) {
+                uniqueSet.add(key);
+                return true;
+            }
+            return false;
+        })
     }
 
     const onlinePeopleExclMe = {...onlinePeople};
     delete onlinePeopleExclMe[id];
+
+    const messagesWithoutDupes = getMessagesWithoutDupes();
 
     return (
         <div className="flex h-screen">
@@ -79,9 +99,13 @@ export default function Chat() {
                         </div>
                     )}
                     {!!selectedUserId && (
-                        <div>
-                            {messages.map(message => (
-                               <div>{message.text}</div> 
+                        <div className="h-full overflow-y-scroll">
+                            {messagesWithoutDupes.map(message => (
+                                <div key={message.id} className={(message.sender === id ? 'text-right' : 'text-left')}>
+                                    <div className={"text-left inline-block p-2 my-2 rounded-sm text-sm "+ (message.sender === id ? 'bg-blue-200' : 'bg-red-200')}>
+                                        {message.text}
+                                    </div>
+                                </div> 
                             ))}
                         </div>
                     )}
