@@ -1,19 +1,19 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 import Avatar from "../components/Avatar";
 import Logo from "../components/Logo";
 import { UserContext } from "./UserContext";
 import axios from "axios";
 
 export default function Chat() {
-    //2.13
 
     const [ws, setWs] = useState(null);
     const [onlinePeople, setOnlinePeople] = useState({});
     const [selectedUserId, setSelectedUserId] = useState(null);
     const [newMessageText, setNewMessageText] = useState('');
     const [messages, setMessages] = useState([]);
-    
 
+    const messagesBoxRef = useRef();
+    
     const {id} = useContext(UserContext);
 
     useEffect(() => {
@@ -21,6 +21,14 @@ export default function Chat() {
         setWs(ws);
         ws.addEventListener('message', handleMessage)
     }, []);
+
+    useEffect(() => {
+        const div = messagesBoxRef.current;
+        if (div) {
+            div.scrollIntoView({behavior: 'smooth', block: 'end'});
+        }    
+    }, [messages]);
+
 
     useEffect(() => {
         if (selectedUserId) {
@@ -111,14 +119,17 @@ export default function Chat() {
                         </div>
                     )}
                     {!!selectedUserId && (
-                        <div className="h-full overflow-y-scroll">
-                            {messagesWithoutDupes.map(message => (
-                                <div key={message.id} className={(message.sender === id ? 'text-right' : 'text-left')}>
-                                    <div className={"text-left inline-block p-2 my-2 rounded-sm text-sm "+ (message.sender === id ? 'bg-blue-200' : 'bg-red-200')}>
-                                        {message.text}
-                                    </div>
-                                </div> 
-                            ))}
+                        <div className="relative h-full ">
+                            <div className="overflow-y-scroll absolute top-0 left-0 right-0 bottom-2">
+                                {messagesWithoutDupes.map(message => (
+                                    <div key={message.id} className={(message.sender === id ? 'text-right mr-2' : 'text-left')}>
+                                        <div className={"text-left inline-block p-2 my-2 rounded-sm text-sm "+ (message.sender === id ? 'bg-blue-200' : 'bg-red-200')}>
+                                            {message.text}
+                                        </div>
+                                    </div> 
+                                ))}
+                                <div  ref={messagesBoxRef}></div>
+                            </div>
                         </div>
                     )}
                 </div>
