@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import Avatar from "../components/Avatar";
 import Logo from "../components/Logo";
 import { UserContext } from "./UserContext";
+import axios from "axios";
 
 export default function Chat() {
     //2.13
@@ -20,6 +21,17 @@ export default function Chat() {
         setWs(ws);
         ws.addEventListener('message', handleMessage)
     }, []);
+
+    useEffect(() => {
+        if (selectedUserId) {
+            console.log("user selected: ", selectedUserId);
+
+            axios.get('/messages/'+selectedUserId).then(response => {
+                setMessages(response.data.reverse());
+            })
+        }
+    }, [selectedUserId])    
+
 
     function showOnlinePeople(peopleArr) {
         const people = {};

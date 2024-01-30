@@ -1,4 +1,5 @@
 import User from '../models/user.model.js';
+import Message from '../models/message.model.js';
 import bcrypt from 'bcryptjs';
 import { createAccesToken } from '../utils/jwtSign.js'
 
@@ -57,14 +58,10 @@ export const login = async (req, res) => {
     }
 };
 
-
-/*
 export const logout = (req, res) => {
     res.cookie('token', "", {expires: new Date(0)});
     return res.sendStatus(200);
 }
-*/
-
 
 export const profile = async (req, res) => {
 
@@ -81,3 +78,16 @@ export const profile = async (req, res) => {
         updatedAt: userFound.updatedAt,
     })
 }
+
+export const messages = async (req, res) => {
+    const {userId} = req.params;
+    const ourUserId = req.user.id;
+
+    const messages = await Message.find({
+        sender:{$in:[userId, ourUserId]},
+        sender:{$in:[userId, ourUserId]},
+    }).sort({createdAt: -1});    
+
+    return res.json(messages)
+}
+
